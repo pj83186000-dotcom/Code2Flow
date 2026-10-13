@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code2Flow — Multi-Language Flowchart Generator & Visual Debugger</title>
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <path d="M10 6.5h4"></path>
+            <path d="M17.5 10v4"></path>
+            <path d="M14 17.5h-4"></path>
+            <path d="M6.5 14v-4"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Code2Flow</span>
+          <span class="brand-badge">Multi-Language Visualizer</span>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="lang-selector-group">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <select id="global-language-select" class="select-lang" title="Select Programming Language">
+          <option value="python" selected>🐍 Python</option>
+          <option value="javascript">🟨 JavaScript</option>
+          <option value="java">☕ Java</option>
+          <option value="cpp">⚡ C / C++</option>
+        </select>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="main-tabs" role="tablist">
+        <button class="nav-tab active" data-tab="flowchart" id="tab-btn-flowchart" role="tab" aria-selected="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          Flowchart &amp; Debugger
+        </button>
+        <button class="nav-tab" data-tab="dsa" id="tab-btn-dsa" role="tab" aria-selected="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          DSA Visualizer
+        </button>
+        <button class="nav-tab" data-tab="oop" id="tab-btn-oop" role="tab" aria-selected="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>
+          OOP Architecture
+        </button>
+        <button class="nav-tab" data-tab="visualizer" id="tab-btn-visualizer" role="tab" aria-selected="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Code Visualizer
+        </button>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div class="badge-offline">
+          <span class="dot-online"></span>
+          <span>100% Offline</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Workspaces -->
+    <main class="app-body">
+
+      <!-- ==================== TAB 1: FLOWCHART & DEBUGGER ==================== -->
+      <section id="view-flowchart" class="workspace-view active" role="tabpanel">
+        
+        <!-- Left Pane: Code & Traceback -->
+        <div class="pane-editor">
+          
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="panel-title" id="editor-lang-title">Python Source Code</span>
+              <span class="syntax-status badge-ok" id="syntax-status">Ready</span>
+            </div>
+            <div class="panel-controls">
+              <select id="flowchart-sample-select" class="select-sm" title="Load Sample Code">
+                <option value="">Load Sample Program...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Code Editor Area -->
+          <div class="editor-wrapper">
+            <textarea id="flowchart-code" spellcheck="false" placeholder="// Paste or type code here..."></textarea>
+          </div>
+
+          <!-- Editor Actions -->
+          <div class="editor-footer">
+            <button id="btn-generate-flowchart" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Generate Flowchart
+            </button>
+            <button id="btn-toggle-debug" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
+              Traceback Debugger <span class="badge-pill" id="tb-badge">Active</span>
+            </button>
+          </div>
+
+          <!-- Traceback Debugging Drawer (Collapsible) -->
+          <div id="debug-drawer" class="debug-drawer">
+            <div class="debug-header">
+              <div class="debug-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Runtime Traceback Visualizer</span>
+              </div>
+              <div class="debug-presets">
+                <select id="traceback-sample-select" class="select-sm">
+                  <option value="">Load Buggy Sample...</option>
+                </select>
+                <button id="btn-close-debug" class="icon-btn-sm" title="Minimize">&times;</button>
+              </div>
+            </div>
+
+            <textarea id="traceback-input" placeholder="Paste full error traceback or compiler message here..."></textarea>
+
+            <div class="debug-actions">
+              <button id="btn-map-traceback" class="btn btn-danger-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+                Locate &amp; Highlight Error
+              </button>
+              <button id="btn-clear-highlight" class="btn btn-ghost-sm" style="display:none;">Clear Highlight</button>
+            </div>
+
+            <!-- Traceback Diagnosis Card -->
+            <div id="traceback-card" class="diagnosis-card" style="display: none;">
+              <div class="diagnosis-header">
+                <span class="exc-tag" id="exc-tag">Error</span>
+                <span class="exc-line" id="exc-line">Line 1</span>
+              </div>
+              <div class="diagnosis-msg" id="exc-msg">description</div>
+              <div class="diagnosis-body">
+                <div class="diag-section">
+                  <strong>What happened:</strong>
+                  <p id="exc-explanation"></p>
+                </div>
+                <div class="diag-section">
+                  <strong>Suggested Fix:</strong>
+                  <p id="exc-suggestion"></p>
+                </div>
+              </div>
+              <!-- Code Context Snippet -->
+              <div class="code-context" id="code-context-block"></div>
+            </div>
+          </div>
+
+          <!-- Syntax Warning Box -->
+          <div id="warnings-box" class="warnings-box" style="display: none;"></div>
+
+        </div>
+
+        <!-- Right Pane: Interactive Flowchart Canvas -->
+        <div class="pane-visualizer">
+          
+          <!-- Flowchart Toolbar -->
+          <div class="viz-toolbar">
+            <div class="toolbar-left">
+              <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="node-search" placeholder="Search node text...">
+              </div>
+              <span class="stat-counter" id="node-count-badge">0 nodes</span>
+            </div>
+
+            <div class="toolbar-right">
+              <div class="zoom-controls">
+                <button id="btn-zoom-in" class="tool-btn" title="Zoom In">+</button>
+                <button id="btn-zoom-reset" class="tool-btn" title="Reset Zoom">100%</button>
+                <button id="btn-zoom-out" class="tool-btn" title="Zoom Out">&minus;</button>
+                <button id="btn-fit-screen" class="tool-btn" title="Fit to Screen">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+
+              <!-- Export Menu Dropdown -->
+              <div class="dropdown">
+                <button class="btn btn-outline-sm dropdown-trigger" id="export-dropdown-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export
+                </button>
+                <div class="dropdown-menu" id="export-menu">
+                  <a href="#" id="export-svg">Download SVG</a>
+                  <a href="#" id="export-html">Standalone Offline HTML</a>
+                  <a href="#" id="export-mermaid">Copy Mermaid Source</a>
+                  <a href="#" id="export-dot">Copy Graphviz DOT</a>
+                  <a href="#" id="export-json">Export JSON Graph</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flowchart Canvas Viewport (Supports Pan & Zoom) -->
+          <div class="canvas-viewport" id="flowchart-viewport">
+            <div class="canvas-transform" id="flowchart-transform">
+              <div id="flowchart-container" class="svg-container">
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                  </div>
+                  <h3>No Flowchart Generated Yet</h3>
+                  <p>Click <strong>"Generate Flowchart"</strong> or select a sample program on the left to visualize control flow.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Legend -->
+            <div class="canvas-legend">
+              <div class="legend-item"><span class="legend-pill pill-oval"></span> Terminal (Start/End)</div>
+              <div class="legend-item"><span class="legend-pill pill-diamond"></span> Decision / Loop</div>
+              <div class="legend-item"><span class="legend-pill pill-parallelogram"></span> Input / Output</div>
+              <div class="legend-item"><span class="legend-pill pill-rect"></span> Process / Statement</div>
+              <div class="legend-item"><span class="legend-pill pill-error"></span> Error Frame</div>
+            </div>
+
+            <!-- Node Details Inspector (Slide-in) -->
+            <div id="node-inspector" class="inspector-drawer">
+              <div class="inspector-header">
+                <h4>Node Inspector</h4>
+                <button id="btn-close-inspector" class="icon-btn-sm">&times;</button>
+              </div>
+              <div class="inspector-body">
+                <div class="inspector-field">
+                  <span class="label">ID:</span>
+                  <span class="val" id="insp-id">-</span>
+                </div>
+                <div class="inspector-field">
+                  <span class="label">AST Type:</span>
+                  <span class="val highlight" id="insp-type">-</span>
+                </div>
+                <div class="inspector-field">
+                  <span class="label">Category:</span>
+                  <span class="val" id="insp-cat">-</span>
+                </div>
+                <div class="inspector-field">
+                  <span class="label">Line Number:</span>
+                  <span class="val" id="insp-line">-</span>
+                </div>
+                <div class="inspector-field">
+                  <span class="label">Scope:</span>
+                  <span class="val" id="insp-scope">-</span>
+                </div>
+                <div class="inspector-field full">
+                  <span class="label">Code Expression:</span>
+                  <pre class="code-block" id="insp-code">-</pre>
+                </div>
+                <div class="inspector-field full">
+                  <span class="label">Explanation:</span>
+                  <p class="desc" id="insp-details">-</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ==================== TAB 2: DSA VISUALIZER ==================== -->
+      <section id="view-dsa" class="workspace-view" role="tabpanel">
+        
+        <div class="dsa-layout">
+          
+          <!-- Left Controls Column -->
+          <div class="dsa-controls-pane">
+            <div class="panel-header">
+              <span class="panel-title">Algorithm &amp; Structure</span>
+            </div>
+
+            <!-- Algorithm Category Selection -->
+            <div class="control-group">
+              <label for="dsa-algorithm-select">Choose Algorithm:</label>
+              <select id="dsa-algorithm-select" class="select-full">
+                <optgroup label="Sorting">
+                  <option value="bubble_sort">Bubble Sort</option>
+                  <option value="selection_sort">Selection Sort</option>
+                  <option value="insertion_sort">Insertion Sort</option>
+                  <option value="merge_sort">Merge Sort</option>
+                  <option value="quick_sort">Quick Sort</option>
+                </optgroup>
+                <optgroup label="Searching">
+                  <option value="linear_search">Linear Search</option>
+                  <option value="binary_search">Binary Search</option>
+                </optgroup>
+                <optgroup label="Linked Lists">
+                  <option value="linked_list_reversal">Linked List Reversal</option>
+                </optgroup>
+                <optgroup label="Binary Trees & BST">
+                  <option value="bst_inorder">BST Inorder Traversal</option>
+                  <option value="bst_preorder">BST Preorder Traversal</option>
+                  <option value="bst_postorder">BST Postorder Traversal</option>
+                </optgroup>
+                <optgroup label="Graphs">
+                  <option value="graph_bfs">Breadth-First Search (BFS)</option>
+                  <option value="graph_dfs">Depth-First Search (DFS)</option>
+                </optgroup>
+                <optgroup label="Recursion">
+                  <option value="fibonacci">Fibonacci Recursion Tree</option>
+                </optgroup>
+                <optgroup label="Linear Data Structures">
+                  <option value="stack_ops">Stack Push &amp; Pop</option>
+                  <option value="queue_ops">Queue Enqueue &amp; Dequeue</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Custom Input Field -->
+            <div class="control-group">
+              <label for="dsa-input-field">Sample Input:</label>
+              <input type="text" id="dsa-input-field" class="input-full" value="64, 34, 25, 12, 22, 11, 90" placeholder="Comma separated integers...">
+              <small class="helper-text" id="dsa-input-helper">Enter numbers separated by commas.</small>
+            </div>
+
+            <button id="btn-run-dsa" class="btn btn-primary btn-block">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Generate Simulation
+            </button>
+
+            <!-- Big-O Complexity Card -->
+            <div class="complexity-card" id="complexity-card">
+              <div class="complexity-header">
+                <span class="complexity-badge">Big-O Analysis</span>
+              </div>
+              <div class="complexity-grid">
+                <div class="comp-col">
+                  <span class="comp-label">Time (Best)</span>
+                  <span class="comp-val" id="time-best">O(n)</span>
+                </div>
+                <div class="comp-col">
+                  <span class="comp-label">Time (Average)</span>
+                  <span class="comp-val" id="time-avg">O(n²)</span>
+                </div>
+                <div class="comp-col">
+                  <span class="comp-label">Time (Worst)</span>
+                  <span class="comp-val" id="time-worst">O(n²)</span>
+                </div>
+                <div class="comp-col">
+                  <span class="comp-label">Space</span>
+                  <span class="comp-val" id="space-comp">O(1)</span>
+                </div>
+              </div>
+              <p class="comp-expl" id="complexity-explanation">Educational explanation of complexity behavior.</p>
+            </div>
+
+            <!-- Variables & Pointer State -->
+            <div class="var-inspector-card">
+              <h4>Active State &amp; Variables</h4>
+              <div class="var-table" id="dsa-var-table">
+                <span class="empty-hint">Variables will appear during simulation.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Visualizer Column -->
+          <div class="dsa-display-pane">
+            
+            <!-- Step Action Narration Banner -->
+            <div class="action-narrative-banner">
+              <div class="step-indicator">
+                <span class="step-badge">Step <strong id="current-step-num">0</strong> / <span id="total-step-num">0</span></span>
+              </div>
+              <div class="step-narrative" id="step-narrative-text">
+                Select an algorithm and click "Generate Simulation" to start.
+              </div>
+              <div class="step-code-highlight" id="step-code-line">
+                <code>Ready</code>
+              </div>
+            </div>
+
+            <!-- Visualization Canvas Area -->
+            <div class="dsa-canvas-area" id="dsa-canvas-container">
+              <div class="empty-state">
+                <p>Data structure visual state will render here.</p>
+              </div>
+            </div>
+
+            <!-- Playback Control Bar -->
+            <div class="dsa-playback-bar">
+              <div class="playback-buttons">
+                <button id="dsa-btn-first" class="tool-btn" title="First Step">&#124;&lang;</button>
+                <button id="dsa-btn-prev" class="tool-btn" title="Previous Step">&lang;</button>
+                <button id="dsa-btn-play" class="btn btn-primary-sm" title="Play / Pause">
+                  <span id="play-icon">&#9654; Play</span>
+                </button>
+                <button id="dsa-btn-next" class="tool-btn" title="Next Step">&rang;</button>
+                <button id="dsa-btn-last" class="tool-btn" title="Last Step">&rang;&#124;</button>
+                <button id="dsa-btn-reset" class="tool-btn" title="Reset">&#8635;</button>
+              </div>
+
+              <!-- Scrubber Timeline Slider -->
+              <div class="timeline-slider-container">
+                <input type="range" id="dsa-step-slider" min="1" max="1" value="1" class="timeline-slider">
+              </div>
+
+              <!-- Speed Selector -->
+              <div class="speed-control">
+                <label for="dsa-speed">Speed:</label>
+                <select id="dsa-speed" class="select-sm">
+                  <option value="1200">0.5x</option>
+                  <option value="600" selected>1.0x</option>
+                  <option value="250">2.0x</option>
+                  <option value="100">Fast</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ==================== TAB 3: OOP ARCHITECTURE ==================== -->
+      <section id="view-oop" class="workspace-view" role="tabpanel">
+        
+        <div class="oop-layout">
+          
+          <!-- Left Column: Class Code -->
+          <div class="pane-editor">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-title" id="oop-lang-title">Class Definition</span>
+              </div>
+              <div class="panel-controls">
+                <select id="oop-sample-select" class="select-sm">
+                  <option value="">Load OOP Sample...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="editor-wrapper">
+              <textarea id="oop-code" spellcheck="false" placeholder="// Paste class definitions here..."></textarea>
+            </div>
+
+            <div class="editor-footer">
+              <button id="btn-generate-oop" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Generate Class Diagram
+              </button>
+            </div>
+
+            <!-- Relationships & Analysis Panel -->
+            <div class="oop-relationships-panel" id="oop-relationships-panel">
+              <div class="panel-sub-header">
+                <h4>Detected Relationships</h4>
+              </div>
+              <div id="oop-relationship-list" class="relationship-list">
+                <span class="empty-hint">Relationships will be listed here.</span>
+              </div>
+
+              <div class="panel-sub-header">
+                <h4>Method Call Sequence</h4>
+              </div>
+              <div id="oop-call-flows" class="call-flow-list">
+                <span class="empty-hint">Method invocations will be listed here.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Interactive UML Diagram -->
+          <div class="pane-visualizer">
+            
+            <div class="viz-toolbar">
+              <div class="toolbar-left">
+                <span class="panel-title">UML Class &amp; Relationship Model</span>
+                <span class="stat-counter" id="oop-class-count">0 classes</span>
+              </div>
+              <div class="toolbar-right">
+                <button class="btn btn-outline-sm" id="btn-copy-oop-mermaid">Copy Mermaid</button>
+                <button class="btn btn-outline-sm" id="btn-copy-oop-dot">Copy DOT</button>
+              </div>
+            </div>
+
+            <div class="canvas-viewport" id="oop-viewport">
+              <div id="oop-diagram-container" class="svg-container">
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                  </div>
+                  <h3>No Class Diagram Generated</h3>
+                  <p>Click <strong>"Generate Class Diagram"</strong> or pick an OOP sample to inspect class hierarchies, overriding, and composition.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ==================== TAB 4: CODE VISUALIZER ==================== -->
+      <section id="view-visualizer" class="workspace-view" role="tabpanel">
+        <div class="viz-main-layout">
+
+          <!-- Left Pane: Code Editor -->
+          <div class="viz-editor-pane">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <span class="panel-title" id="viz-lang-title">Python Code</span>
+                <span class="syntax-status badge-ok" id="viz-status">Ready</span>
+              </div>
+              <div class="panel-controls">
+                <select id="viz-sample-select" class="select-sm" title="Load sample code">
+                  <option value="">Load Sample...</option>
+                  <option value="bubble">Bubble Sort</option>
+                  <option value="selection">Selection Sort</option>
+                  <option value="insertion">Insertion Sort</option>
+                  <option value="binary_search">Binary Search</option>
+                  <option value="linear_search">Linear Search</option>
+                  <option value="fibonacci">Fibonacci (Recursion)</option>
+                  <option value="factorial">Factorial</option>
+                  <option value="stack_demo">Stack Operations</option>
+                  <option value="queue_demo">Queue Operations</option>
+                  <option value="two_pointers">Two Pointers</option>
+                  <option value="matrix_sum">Matrix Row Sum</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Code Editor with Line Highlight -->
+            <div class="viz-code-editor-wrapper" id="viz-code-wrapper">
+              <div class="viz-line-numbers" id="viz-line-numbers"></div>
+              <textarea id="viz-code" spellcheck="false" placeholder="# Paste your Python code here...
+array = [64, 34, 25, 12, 22]
+for i in range(len(array)):
+    for j in range(0, len(array)-i-1):
+        if array[j] > array[j+1]:
+            array[j], array[j+1] = array[j+1], array[j]"></textarea>
+            </div>
+
+            <div class="editor-footer">
+              <button id="btn-trace-code" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Trace &amp; Visualize
+              </button>
+              <button id="btn-viz-clear" class="btn btn-ghost-sm">Clear</button>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="viz-error-banner" style="display:none;margin-top:0.75rem;padding:0.65rem 0.9rem;background:rgba(239,68,68,0.12);border:1px solid #ef4444;border-radius:6px;color:#fca5a5;font-size:0.82rem;font-family:var(--font-mono);line-height:1.4;"></div>
+
+            <!-- Execution Output Box -->
+            <div class="viz-output-box" id="viz-output-box" style="display:none;">
+              <div class="panel-sub-header"><h4>Program Output</h4></div>
+              <pre id="viz-output-text"></pre>
+            </div>
+          </div>
+
+          <!-- Right Pane: Visualization Canvas -->
+          <div class="viz-canvas-pane">
+
+            <!-- Step Narration Bar -->
+            <div class="viz-narration-bar">
+              <div class="step-indicator">
+                <span class="step-badge">Step <strong id="viz-step-num">0</strong> / <span id="viz-total-steps">0</span></span>
+              </div>
+              <div class="viz-narration-text" id="viz-narration">Click "Trace &amp; Visualize" to start</div>
+            </div>
+
+            <!-- Animated Visualization Canvas -->
+            <div class="viz-canvas" id="viz-canvas">
+              <div class="empty-state" id="viz-empty-state">
+                <div class="empty-icon">
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <h3>No Visualization Yet</h3>
+                <p id="viz-empty-desc">Paste your Python, Java, JavaScript, or C++ code and click <strong>"Trace &amp; Visualize"</strong> to see a live animated execution trace of your exact code.</p>
+                <div class="viz-hint-chips">
+                  <span class="hint-chip">Sorting algorithms</span>
+                  <span class="hint-chip">Searching</span>
+                  <span class="hint-chip">Recursion</span>
+                  <span class="hint-chip">Stacks &amp; Queues</span>
+                  <span class="hint-chip">Matrices</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variable Inspector Panel -->
+            <div class="viz-var-panel" id="viz-var-panel" style="display:none;">
+              <div class="panel-sub-header"><h4>Variables at Step <span id="viz-var-step">0</span></h4></div>
+              <div class="viz-var-grid" id="viz-var-grid"></div>
+            </div>
+
+            <!-- Playback Controls -->
+            <div class="viz-playback-bar" id="viz-playback-bar" style="display:none;">
+              <div class="playback-buttons">
+                <button id="viz-btn-first" class="tool-btn" title="First Step">&#124;&lang;</button>
+                <button id="viz-btn-prev" class="tool-btn" title="Previous">&lang;</button>
+                <button id="viz-btn-play" class="btn btn-primary-sm" title="Play/Pause">
+                  <span id="viz-play-icon">&#9654; Play</span>
+                </button>
+                <button id="viz-btn-next" class="tool-btn" title="Next">&rang;</button>
+                <button id="viz-btn-last" class="tool-btn" title="Last Step">&rang;&#124;</button>
+              </div>
+
+              <div class="timeline-slider-container">
+                <input type="range" id="viz-step-slider" min="1" max="1" value="1" class="timeline-slider">
+              </div>
+
+              <div class="speed-control">
+                <label for="viz-speed">Speed:</label>
+                <select id="viz-speed" class="select-sm">
+                  <option value="1400">0.5x</option>
+                  <option value="700" selected>1.0x</option>
+                  <option value="280">2.5x</option>
+                  <option value="80">Fast</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Global Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <script src="static/app.js"></script>
+</body>
+</html>

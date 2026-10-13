@@ -1,0 +1,7 @@
+# Code2Flow Dependencies
+# Code2Flow runs completely out of the box on Python 3.10 through Python 3.14+
+# with ZERO required pip dependencies, utilizing Python's built-in ast and http.server.
+# The dependencies below are optional enhancements for Flask serving and pytest testing:
+
+flask>=2.3.0
+pytest>=7.4.0
